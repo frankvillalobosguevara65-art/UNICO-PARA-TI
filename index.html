@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HBD Avioneta - Sorpresa</title>
+    <title>Navidad Sorpresa</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Courier New', Courier, monospace; background: #87CEEB; }
         #form-container {
@@ -13,31 +13,37 @@
             padding: 30px; border-radius: 15px;
             text-align: center; color: white; z-index: 10;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 2px solid #f1c40f;
+            border: 2px solid #e74c3c;
         }
-        h3 { margin-bottom: 20px; font-size: 1.2rem; }
         input { 
             padding: 12px; border-radius: 5px; border: none; 
             width: 80%; margin-bottom: 20px; font-size: 1rem;
             text-align: center;
         }
         button { 
-            padding: 12px 25px; background: #f1c40f; border: none; 
+            padding: 12px 25px; background: #e74c3c; color: white; border: none; 
             border-radius: 5px; cursor: pointer; font-weight: bold; 
             text-transform: uppercase; transition: 0.3s;
         }
-        button:hover { background: #d4ac0d; transform: scale(1.05); }
+        button:hover { background: #c0392b; transform: scale(1.05); }
         canvas { display: block; background: linear-gradient(to bottom, #1e3c72, #2a5298, #87CEEB); }
     </style>
 </head>
 <body>
 
     <div id="form-container">
-        <h3>Hoy es cumpleaños de... ❤️</h3>
-        <input type="text" id="nameInput" placeholder="Escribe el nombre aquí">
+        <h3>Escribe tu nombre aquí... ❤️</h3>
+        <input type="text" id="nameInput" placeholder="Tu nombre...">
         <br>
-        <button onclick="startAnimation()">Ver sorpresa</button>
+        <button onclick="startAnimation()">Abrir Regalo 🎄</button>
     </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.mfiles.co.uk/mp3-downloads/jingle-bells-keyboard.mp3" type="audio/mp3">
+    </audio>
+    <audio id="planeSound" loop>
+        <source src="https://www.soundjay.com/transportation/sounds/propeller-plane-fly-over-1.mp3" type="audio/mp3">
+    </audio>
 
     <canvas id="skyCanvas"></canvas>
 
@@ -54,38 +60,31 @@
         canvas.height = window.innerHeight;
 
         function startAnimation() {
-            userName = document.getElementById('nameInput').value || "JANE";
+            userName = document.getElementById('nameInput').value || "Amiga";
             document.getElementById('form-container').style.display = 'none';
+            
+            // Iniciar sonidos
+            document.getElementById('bgMusic').play();
+            document.getElementById('planeSound').play();
+            
             animationStarted = true;
             planeY = canvas.height / 2;
             animate();
         }
 
         function drawPlane(x, y) {
-            // Cuerpo de la avioneta (rojo)
-            ctx.fillStyle = "#e74c3c";
+            ctx.fillStyle = "#e74c3c"; // Color rojo navideño
             ctx.beginPath();
             ctx.ellipse(x, y, 25, 10, 0, 0, Math.PI * 2);
             ctx.fill();
-            
-            // Alas
-            ctx.fillStyle = "#c0392b";
+            ctx.fillStyle = "#ffffff";
             ctx.fillRect(x - 5, y - 25, 10, 50);
-            
-            // Hélice
-            ctx.strokeStyle = "#2c3e50";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(x + 25, y - 15);
-            ctx.lineTo(x + 25, y + 15);
-            ctx.stroke();
         }
 
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Crear y dibujar partículas de humo
-            if (planeX < canvas.width + 200) {
+            if (animationStarted && planeX < canvas.width + 500) {
                 particles.push({
                     x: planeX - 20,
                     y: planeY + (Math.random() * 10 - 5),
@@ -96,38 +95,30 @@
 
             for (let i = 0; i < particles.length; i++) {
                 let p = particles[i];
-                p.opacity -= 0.003;
+                p.opacity -= 0.002;
                 p.size += 0.05;
                 ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Dibujar el texto HBD dentro del rastro
-                if (i % 60 === 0 && i > 0) {
-                    ctx.font = "bold 30px Arial";
+                // Mensaje solicitado: FELIZ NAVIDAD CON CARIÑO [NOMBRE]
+                if (i % 100 === 0 && i > 0) {
+                    ctx.font = "bold 25px Arial";
                     ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
-                    ctx.fillText("HBD " + userName.toUpperCase(), p.x, p.y - 40);
+                    ctx.fillText("FELIZ NAVIDAD CON CARIÑO " + userName.toUpperCase(), p.x, p.y - 50);
                 }
             }
 
-            // Mover el avión
             if (animationStarted) {
-                planeX += 2.5;
+                planeX += 2; // Velocidad del avión
                 planeY = (canvas.height / 2) + Math.sin(planeX * 0.01) * 30;
                 drawPlane(planeX, planeY);
             }
 
-            // Eliminar partículas invisibles
             particles = particles.filter(p => p.opacity > 0);
-
             requestAnimationFrame(animate);
         }
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
     </script>
 </body>
 </html>
