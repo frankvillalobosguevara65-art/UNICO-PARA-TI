@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBD Avioneta - Sorpresa</title>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Courier New', Courier, monospace; background: #87CEEB; }
+        #form-container {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(28, 28, 28, 0.9);
+            padding: 30px; border-radius: 15px;
+            text-align: center; color: white; z-index: 10;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 2px solid #f1c40f;
+        }
+        h3 { margin-bottom: 20px; font-size: 1.2rem; }
+        input { 
+            padding: 12px; border-radius: 5px; border: none; 
+            width: 80%; margin-bottom: 20px; font-size: 1rem;
+            text-align: center;
+        }
+        button { 
+            padding: 12px 25px; background: #f1c40f; border: none; 
+            border-radius: 5px; cursor: pointer; font-weight: bold; 
+            text-transform: uppercase; transition: 0.3s;
+        }
+        button:hover { background: #d4ac0d; transform: scale(1.05); }
+        canvas { display: block; background: linear-gradient(to bottom, #1e3c72, #2a5298, #87CEEB); }
+    </style>
+</head>
+<body>
+
+    <div id="form-container">
+        <h3>Hoy es cumpleaños de... ❤️</h3>
+        <input type="text" id="nameInput" placeholder="Escribe el nombre aquí">
+        <br>
+        <button onclick="startAnimation()">Ver sorpresa</button>
+    </div>
+
+    <canvas id="skyCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('skyCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let planeX = -100;
+        let planeY = 0;
+        let animationStarted = false;
+        let userName = "";
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function startAnimation() {
+            userName = document.getElementById('nameInput').value || "JANE";
+            document.getElementById('form-container').style.display = 'none';
+            animationStarted = true;
+            planeY = canvas.height / 2;
+            animate();
+        }
+
+        function drawPlane(x, y) {
+            // Cuerpo de la avioneta (rojo)
+            ctx.fillStyle = "#e74c3c";
+            ctx.beginPath();
+            ctx.ellipse(x, y, 25, 10, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Alas
+            ctx.fillStyle = "#c0392b";
+            ctx.fillRect(x - 5, y - 25, 10, 50);
+            
+            // Hélice
+            ctx.strokeStyle = "#2c3e50";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(x + 25, y - 15);
+            ctx.lineTo(x + 25, y + 15);
+            ctx.stroke();
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Crear y dibujar partículas de humo
+            if (planeX < canvas.width + 200) {
+                particles.push({
+                    x: planeX - 20,
+                    y: planeY + (Math.random() * 10 - 5),
+                    size: 8,
+                    opacity: 1
+                });
+            }
+
+            for (let i = 0; i < particles.length; i++) {
+                let p = particles[i];
+                p.opacity -= 0.003;
+                p.size += 0.05;
+                ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Dibujar el texto HBD dentro del rastro
+                if (i % 60 === 0 && i > 0) {
+                    ctx.font = "bold 30px Arial";
+                    ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+                    ctx.fillText("HBD " + userName.toUpperCase(), p.x, p.y - 40);
+                }
+            }
+
+            // Mover el avión
+            if (animationStarted) {
+                planeX += 2.5;
+                planeY = (canvas.height / 2) + Math.sin(planeX * 0.01) * 30;
+                drawPlane(planeX, planeY);
+            }
+
+            // Eliminar partículas invisibles
+            particles = particles.filter(p => p.opacity > 0);
+
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>
